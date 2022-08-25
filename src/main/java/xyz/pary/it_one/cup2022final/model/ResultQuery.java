@@ -21,4 +21,9 @@ public class ResultQuery {
         return code;
     }
 
+    @Override
+    public String toString() {
+        return "ResultQuery{" + "resultId=" + resultId + ", code=" + code + '}';
+    }
+
 }
