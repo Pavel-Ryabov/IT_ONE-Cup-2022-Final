@@ -13,10 +13,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestExecution;
-import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 import xyz.pary.it_one.cup2022final.model.Column;
 import xyz.pary.it_one.cup2022final.model.ResultQuery;
@@ -34,6 +34,7 @@ public class CheckerService {
     public CheckerService() {
         this.rt = new RestTemplate();
         this.rt.setInterceptors(Collections.singletonList(new JsonHeaderRequestInterceptor()));
+        this.rt.setErrorHandler(new NoOpResponseErrorHandler());
     }
 
     public void check() {
@@ -65,7 +66,7 @@ public class CheckerService {
 
         Table t6 = new Table("table2", "id", columns, columns.size() - 1);
         createTable(t6, HttpStatus.NOT_ACCEPTABLE);
-        
+
         dropTable(t3.getTableName(), HttpStatus.CREATED);
         dropTable(t3.getTableName(), HttpStatus.NOT_ACCEPTABLE);
     }
@@ -97,7 +98,7 @@ public class CheckerService {
             log.error("{} - {}", url, st);
         }
     }
-    
+
     private void getTable(String tableName, String eb, HttpStatus es) {
         String resultUrl = ep + Table.GET_BY_NAME_RESULT;
         TableResultQuery<String> rq = new TableResultQuery<>(eb, es);
@@ -120,5 +121,13 @@ public class CheckerService {
             headers.add("Content-Type", MediaType.APPLICATION_JSON_VALUE);
             return execution.execute(request, body);
         }
+    }
+
+    private static class NoOpResponseErrorHandler extends DefaultResponseErrorHandler {
+
+        @Override
+        public void handleError(ClientHttpResponse response) throws IOException {
+        }
+
     }
 }
